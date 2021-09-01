@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class GManager : MonoBehaviour
 {
-    public static List<Gravity> galacticBodies = new List<Gravity>();
+
+    public static List<GalacticBody> galacticBodies = new List<GalacticBody>();
     public const float gConstant = 6.674f;
 
     float closestDist = Mathf.Infinity;
@@ -53,7 +54,7 @@ public class GManager : MonoBehaviour
         {
             GameObject tempObj = new GameObject();
             GameObject tempChild = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            tempChild.transform.parent = tempObj.transform;
+            //tempChild.transform.parent = tempObj.transform;
             tempObj.transform.parent = universe.transform;
             tempObj.transform.SetPositionAndRotation(universe.transform.position + new Vector3(Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist)), Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist)), Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist))), Quaternion.identity);
             tempObj.transform.name = "Galaxy" + (Random.Range(0, galaxy.Count) + 1);
@@ -75,15 +76,13 @@ public class GManager : MonoBehaviour
             while (curSpawn < maxSpawn)
             {
                 GameObject tempObj = new GameObject();
-                tempObj.transform.parent = galaxy[i].transform;
                 GameObject tempChild = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 tempChild.transform.parent = tempObj.transform;
                 GameObject tempNeb = Instantiate(nebula, tempChild.transform.position, Quaternion.identity);
                 tempNeb.transform.parent = tempChild.transform;
                 tempObj.transform.SetPositionAndRotation(galaxy[i].transform.position + new Vector3(Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist)), Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist)), Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist))), Quaternion.identity);
                 tempObj.transform.name = "Solar System" + i;
-                tempChild.AddComponent<GalacticBody>();
-                tempChild.AddComponent<Gravity>();
+                tempObj.AddComponent<GalacticBody>();
                 solarSystem.Add(tempObj);                                                                    //Add a new Galaxy to the galaxy list
                 curSpawn++;                                                                             //Increment curSpawn by 1
             }
@@ -105,14 +104,12 @@ public class GManager : MonoBehaviour
             while (curSpawn < maxSpawn)
             {
                 GameObject tempObj = new GameObject();
-                tempObj.transform.parent = solarSystem[i].transform;
                 GameObject tempChild = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 tempChild.transform.parent = tempObj.transform;
                 tempObj.transform.SetPositionAndRotation(solarSystem[i].transform.position + new Vector3(Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist)), Random.Range(-20, 20), Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist))), Quaternion.identity);
                 tempObj.transform.eulerAngles = new Vector3(Random.Range(-15, 15), Random.Range(-15, 15), Random.Range(-15, 15));
                 tempObj.transform.name = "Planet" + i;
-                tempChild.AddComponent<GalacticBody>();
-                tempChild.AddComponent<Gravity>();
+                tempObj.AddComponent<GalacticBody>();
                 planet.Add(tempObj);                                                                    
                 curSpawn++;                                                                             
             }
@@ -134,14 +131,12 @@ public class GManager : MonoBehaviour
             while (curSpawn < maxSpawn)
             {
                 GameObject tempObj = new GameObject();
-                tempObj.transform.parent = planet[i].transform;
                 GameObject tempChild = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 tempChild.transform.parent = tempObj.transform;
                 tempObj.transform.SetPositionAndRotation(planet[i].transform.position + new Vector3(Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist)), Random.Range(-10,10), Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist))), Quaternion.identity);
                 tempObj.transform.rotation = Quaternion.Euler(Random.Range(-15, 15), Random.Range(-15, 15), Random.Range(-15, 15));
                 tempObj.transform.name = "Moon" + i;
-                tempChild.AddComponent<GalacticBody>();
-                tempChild.AddComponent<Gravity>();
+                tempObj.AddComponent<GalacticBody>();
                 moon.Add(tempObj);
                 curSpawn++;                                                                             
             }
