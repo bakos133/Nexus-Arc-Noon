@@ -363,5 +363,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: GManager
       objectReference: {fileID: 0}
+    - target: {fileID: 4633394001927359111, guid: a020e4175b499c54db2d0cbc60b32722,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a020e4175b499c54db2d0cbc60b32722, type: 3}

@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class GManager : MonoBehaviour
 {
+    public static List<Gravity> galacticBodies = new List<Gravity>();
+    public const float gConstant = 6.674f;
+
+    float closestDist = Mathf.Infinity;
 
     public int maxSpawn = 0;
     int curSpawn = 0;
@@ -34,7 +38,7 @@ public class GManager : MonoBehaviour
         maxDist = 100000;
 
         curSpawn = 0;                                                                               //Set the current spawned objects to 0 - used in Galaxy
-        maxSpawn = Random.Range(1, 5);                                                             //Set the max spawnable objects to a random number between 1 & 10. (anywhere between 1 - 10 galaxies will be spawned)
+        maxSpawn = Random.Range(1, 1);                                                             //Set the max spawnable objects to a random number between 1 & 10. (anywhere between 1 - 10 galaxies will be spawned)
         Galaxy();                                                                                   //Call Galaxy() function to start the universe spawning process.
     }
 
@@ -50,8 +54,8 @@ public class GManager : MonoBehaviour
             GameObject tempObj = new GameObject();
             GameObject tempChild = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             tempChild.transform.parent = tempObj.transform;
-            tempObj.transform.SetPositionAndRotation(universe.transform.position + new Vector3(Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist)), Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist)), Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist))), Quaternion.identity);
             tempObj.transform.parent = universe.transform;
+            tempObj.transform.SetPositionAndRotation(universe.transform.position + new Vector3(Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist)), Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist)), Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist))), Quaternion.identity);
             tempObj.transform.name = "Galaxy" + (Random.Range(0, galaxy.Count) + 1);
             galaxy.Add(tempObj);                                                                    //Add a new Galaxy to the galaxy list
             curSpawn++;                                                                             //Increment curSpawn by 1
@@ -59,7 +63,7 @@ public class GManager : MonoBehaviour
 
         maxDist = maxDist/4;
         curSpawn = 0;                                                                               //Set curSpawn to 0 again.
-        maxSpawn = Random.Range(150, 300);                                                             //Set maxSpawn to a random number between 1 & 10 again.
+        maxSpawn = Random.Range(10, 20);                                                             //Set maxSpawn to a random number between 1 & 10 again.
         SolarSystem();                                                                              //Move onto solar systems.
     }
 
@@ -71,21 +75,21 @@ public class GManager : MonoBehaviour
             while (curSpawn < maxSpawn)
             {
                 GameObject tempObj = new GameObject();
-                GameObject tempChild = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                GameObject tempNeb = Instantiate(nebula, tempChild.transform.position, Quaternion.identity);
-                tempChild.transform.parent = tempObj.transform;
-                tempNeb.transform.parent = tempObj.transform;
-                tempObj.transform.SetPositionAndRotation(galaxy[i].transform.position + new Vector3(Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist)), Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist)), Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist))), Quaternion.identity);
-                int tempScale = Random.Range(12, 30);
-                tempObj.transform.localScale = new Vector3(tempScale, tempScale, tempScale);
                 tempObj.transform.parent = galaxy[i].transform;
+                GameObject tempChild = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                tempChild.transform.parent = tempObj.transform;
+                GameObject tempNeb = Instantiate(nebula, tempChild.transform.position, Quaternion.identity);
+                tempNeb.transform.parent = tempChild.transform;
+                tempObj.transform.SetPositionAndRotation(galaxy[i].transform.position + new Vector3(Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist)), Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist)), Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist))), Quaternion.identity);
                 tempObj.transform.name = "Solar System" + i;
+                tempChild.AddComponent<GalacticBody>();
+                tempChild.AddComponent<Gravity>();
                 solarSystem.Add(tempObj);                                                                    //Add a new Galaxy to the galaxy list
                 curSpawn++;                                                                             //Increment curSpawn by 1
             }
 
             curSpawn = 0;                                                                           //IMPORTANT: setting curSpawn to 0 here allows this for-loop to properly spawn each galaxy with it's own random set of solar systems. Otherwise every galaxy will look exactly alike.
-            maxSpawn = Random.Range(150, 300);                                                         //IMPORTANT: this is what allows every galaxy to be random - we are re-using this int so 
+            maxSpawn = Random.Range(10, 20);                                                         //IMPORTANT: this is what allows every galaxy to be random - we are re-using this int so 
         }
 
         maxDist = maxDist/15;
@@ -101,14 +105,14 @@ public class GManager : MonoBehaviour
             while (curSpawn < maxSpawn)
             {
                 GameObject tempObj = new GameObject();
+                tempObj.transform.parent = solarSystem[i].transform;
                 GameObject tempChild = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 tempChild.transform.parent = tempObj.transform;
                 tempObj.transform.SetPositionAndRotation(solarSystem[i].transform.position + new Vector3(Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist)), Random.Range(-20, 20), Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist))), Quaternion.identity);
                 tempObj.transform.eulerAngles = new Vector3(Random.Range(-15, 15), Random.Range(-15, 15), Random.Range(-15, 15));
-                int tempScale = Random.Range(2, 11);
-                tempObj.transform.localScale = new Vector3(tempScale, tempScale, tempScale);
-                tempObj.transform.parent = solarSystem[i].transform;
                 tempObj.transform.name = "Planet" + i;
+                tempChild.AddComponent<GalacticBody>();
+                tempChild.AddComponent<Gravity>();
                 planet.Add(tempObj);                                                                    
                 curSpawn++;                                                                             
             }
@@ -130,15 +134,15 @@ public class GManager : MonoBehaviour
             while (curSpawn < maxSpawn)
             {
                 GameObject tempObj = new GameObject();
+                tempObj.transform.parent = planet[i].transform;
                 GameObject tempChild = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 tempChild.transform.parent = tempObj.transform;
                 tempObj.transform.SetPositionAndRotation(planet[i].transform.position + new Vector3(Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist)), Random.Range(-10,10), Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist))), Quaternion.identity);
                 tempObj.transform.rotation = Quaternion.Euler(Random.Range(-15, 15), Random.Range(-15, 15), Random.Range(-15, 15));
-                float tempScale = Random.Range(0.1f, 1.0f);
-                tempObj.transform.localScale = new Vector3(tempScale, tempScale, tempScale);
-                tempObj.transform.parent = planet[i].transform;
                 tempObj.transform.name = "Moon" + i;
-                moon.Add(tempObj);                                                                   
+                tempChild.AddComponent<GalacticBody>();
+                tempChild.AddComponent<Gravity>();
+                moon.Add(tempObj);
                 curSpawn++;                                                                             
             }
 
@@ -146,33 +150,9 @@ public class GManager : MonoBehaviour
             maxSpawn = Random.Range(Random.Range(0, 3), Random.Range(1, 4));
         }
 
-        maxDist = 100000;
+        maxDist = 0;
         curSpawn = 0;
-        maxSpawn = Random.Range(100, 200);
-        FinishUp();
-        //Nebulae();
-    }
-
-    void Nebulae()
-    {
-            while (curSpawn < maxSpawn)
-            {
-                GameObject tempObj = new GameObject();
-                //GameObject tempChild = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                GameObject tempChild = Instantiate(nebula, new Vector3(0, 0, 0), Quaternion.identity);
-                tempChild.transform.parent = universe.transform;
-                tempObj.transform.SetPositionAndRotation(new Vector3(Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist)), Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist)), Random.Range(Random.Range(-maxDist, -minDist), Random.Range(minDist, maxDist))), Quaternion.identity);
-                tempObj.transform.rotation = Quaternion.Euler(Random.Range(-15, 15), Random.Range(-15, 15), Random.Range(-15, 15));
-                int tempScale = Random.Range(20, 100);
-                tempObj.transform.localScale = new Vector3(tempScale, tempScale, tempScale);
-                tempObj.transform.name = "Nebulae " +1;
-                nebulae.Add(tempObj);
-                curSpawn++;
-            }
-
-
-        curSpawn = 0;
-        maxSpawn = 0;
+        maxSpawn = Random.Range(0, 0);
         FinishUp();
     }
 
@@ -182,6 +162,7 @@ public class GManager : MonoBehaviour
         {
             sol.transform.eulerAngles = new Vector3(Random.Range(-90, 90), Random.Range(-90, 90), Random.Range(-90, 90));
         }
-        //All Done - how's it looking?
+
+
     }
 }
