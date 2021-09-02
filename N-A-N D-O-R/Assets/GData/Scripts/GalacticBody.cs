@@ -13,59 +13,69 @@ public class GalacticBody : MonoBehaviour
     public Vector3 velocity;            //GalacticBody.velocity
     public Vector3 initialVelocity;     //GalacticBody.initialVelocity
     public float radius;                //GalacticBody.radius
+    public bool collided = false;
 
     GalacticBody rb;
 
     private void Start()
     {
-        radius = transform.localScale.magnitude;
-        surfaceG = radius;
-        mass = (surfaceG * radius * radius / GManager.gConstant) * Time.deltaTime;
+        radius = transform.localScale.x;
+        surfaceG = radius * 2;
+        mass = surfaceG * radius * radius / Gravity.gConstant;
 
-        radius += Random.Range(1, 20) * mass * GManager.gConstant * Time.deltaTime;
+        //radius += Random.Range(1, 20) * mass / Gravity.gConstant;
 
-        //initialVelocity += new Vector3(0, Random.Range(20 / mass, 40 / mass), 0);
+        initialVelocity = new Vector3(Random.Range(0.001f, 0.01f) * mass, Random.Range(0.001f, 0.01f) * mass, Random.Range(0.001f, 0.01f) * mass);
         velocity = initialVelocity;
     }
     private void Update()
     {
-        foreach (GalacticBody galacticBody in GManager.galacticBodies)
+        if (!collided)
         {
-            if (galacticBody != this)
+            foreach (GalacticBody galacticBody in Gravity.galacticBodies)
             {
-                Gravity.Attract(this, galacticBody);
-            }
+                if (galacticBody != this)
+                {
+                    Gravity.Attract(this, galacticBody);
+                    return;
+                }
 
+            }
         }
+        else
+        {
+            Destroy(this.gameObject);
+        }
+
 
     }
 
     private void OnEnable()
     {
         rb = this.GetComponent<GalacticBody>();
-        if (GManager.galacticBodies == null)
+        if (Gravity.galacticBodies == null)
         {
-            GManager.galacticBodies = new List<GalacticBody>();
+            Gravity.galacticBodies = new List<GalacticBody>();
         }
 
-        GManager.galacticBodies.Add(rb);
+        Gravity.galacticBodies.Add(rb);
     }
 
     private void OnDestroy()
     {
-        GManager.galacticBodies.Remove(this);
+        Gravity.galacticBodies.Remove(this);
     }
 
     public void UpdateMass()
     {
-        //mass = (radius * radius / GManager.gConstant) * Time.deltaTime;
+        mass = surfaceG * radius * radius / Gravity.gConstant;
         AddForce();
-        transform.localPosition -= velocity * Time.deltaTime;
+        transform.position -= velocity * Time.deltaTime;
     }
 
     public void AddForce()
     {
-        velocity += (force * mass) / GManager.gConstant * Time.deltaTime;
+        velocity += force / (mass * Gravity.gConstant) * Time.deltaTime;
     }
 
 }
