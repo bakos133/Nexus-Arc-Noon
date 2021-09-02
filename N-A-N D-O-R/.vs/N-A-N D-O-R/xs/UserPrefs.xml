@@ -1,0 +1,17 @@
+﻿<Properties StartupConfiguration="{D5AE81EE-2843-EF77-E5E1-75A00B002D28}|">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/GData/Scripts/EntityType.cs">
+    <Files>
+      <File FileName="Assets/GData/Scripts/GManager.cs" Line="44" Column="1" />
+      <File FileName="Assets/GData/Scripts/Gravity.cs" Line="7" Column="1" />
+      <File FileName="Assets/GData/Scripts/GalacticBody.cs" Line="22" Column="9" />
+      <File FileName="Assets/GData/Scripts/EntityType.cs" Line="1" Column="21" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="af8182b0-9169-489e-86fa-fdbb63cf4b63" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>

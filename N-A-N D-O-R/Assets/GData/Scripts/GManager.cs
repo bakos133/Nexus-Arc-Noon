@@ -29,8 +29,32 @@ public class GManager : MonoBehaviour
 
     public GameObject nebula;
 
+    #region noob addition
+
+    public static SpawnSettings SpawnSettings = new SpawnSettings();
+    [SerializeField]
+    public GalacticBody UniversePrefab = null;
+
+    GalacticBody universeBody;
+
+    #endregion noob addition
+
+
+
+
     private void Start()
     {
+
+
+        #region noob spawning
+        // comment this out to go to the previous version
+        universeBody = Instantiate(UniversePrefab);
+        universeBody.SpawnChildren();
+        return;
+
+        #endregion
+
+
         maxSpawn = 1;                                                                               //how many are allowed to spawn (in this case, universes) - only 1
         universe = GameObject.CreatePrimitive(PrimitiveType.Capsule);                         //Spawn the universe into the game at the center of everything. (coord. x0 y0 z0)
         universe.transform.name = "Universe";                                                            //Name it universe so we can refer to it later
@@ -160,4 +184,41 @@ public class GManager : MonoBehaviour
 
 
     }
+
+    void GetGalacticBodyByType(EntityType type)
+    {
+        universe.GetComponent<GalacticBody>().GetGalacticBodyByType(type);
+
+    }
+
+    
+}
+
+public class SpawnSettings{
+    public int minUniverse = 1;
+    public int maxUniverse = 1;
+
+    public int minGalaxy = 1;
+    public int maxGalaxy = 1;
+
+    public int minSolarSystem = 10;
+    public int maxSolarSystem = 20;
+
+    public int minPlanet = 1;
+    public int maxPlanet = 20;
+
+    public int minMoonLow = 0;
+    public int minMoonHigh = 3;
+    public int maxMoonLow = 1;
+    public int maxMoonHigh = 4;
+
+    public float maxDistanceGalaxyK = 1f;
+    public float maxDistanceSolarSystemK = 4f;
+    public float maxDistancePlanetK= 4f * 15f;
+    public float maxDistanceMoonK = 4f * 15f * 15f;
+
+    public float maxDistance = 100000f;
+    public float minDistacne = -100f;
+
+
 }
