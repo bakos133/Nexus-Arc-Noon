@@ -6,7 +6,7 @@ using UnityEngine;
 public class Gravity
 {
     public static List<GalacticBody> galacticBodies = new List<GalacticBody>();
-    public float gConstant = 6.67430f;
+    public float gConstant = 6.67430f * Mathf.Pow(10, -11);
 
     void Start()
     {
@@ -18,23 +18,28 @@ public class Gravity
         Vector3 direction = (gBody.transform.position - gRB.transform.position).normalized;
         float distance = direction.magnitude;
 
-        float forceMag = gConstant * (gBody.mass * gRB.mass) / Mathf.Pow(distance, 2);
+        float forceMag = (gConstant * (gBody.mass * gRB.mass) / Mathf.Pow(distance, 2));
         gBody.force = direction.normalized * forceMag;
 
-        gBody.UpdateMass();
 
-        if(gBody.transform.position == gRB.transform.position)
+        float tempDist = Vector3.Distance(gBody.transform.position, gRB.transform.position);
+        if (tempDist > 1f)
+        {
+            gBody.UpdateMass();
+            
+        }
+        else
         {
             if (gBody.mass > gRB.mass)
             {
-                gBody.mass += gRB.mass / gConstant;
-                gBody.velocity -= gRB.velocity / gConstant;
+                gBody.radius += gRB.mass;
+                gBody.velocity -= gRB.velocity;
                 gRB.collided = true;
             }
             else
             {
-                gRB.mass += gBody.mass / gConstant;
-                gRB.velocity -= gBody.velocity / gConstant;
+                gRB.radius += gBody.mass;
+                gRB.velocity -= gBody.velocity;
                 gBody.collided = true;
             }
         }

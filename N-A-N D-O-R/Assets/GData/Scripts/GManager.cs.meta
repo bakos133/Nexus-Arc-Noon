@@ -3,7 +3,12 @@ guid: 61463b0fe1695c6479bbea2455dcf8d0
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - universe: {fileID: 8183084394586165670, guid: 6905e04bdf18f5e49a708b70efb94cf6,
+      type: 3}
+  - nebula: {fileID: 8623625880667581582, guid: 995be32d2815c4f4dad1cc86974bfdf8,
+      type: 3}
+  - universePrefab: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
