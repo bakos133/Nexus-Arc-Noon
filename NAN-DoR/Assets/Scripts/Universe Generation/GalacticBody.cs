@@ -66,12 +66,14 @@ public class GalacticBody : MonoBehaviour
                 distQuotient = uniGen.SpawnSettings.maxDistMK;
                 break;
         }
+
         for (int i = 0; i < n; i++)
         {
             var tmpObj = Instantiate(childPrefab, transform.position + GetRandomVector3(uniGen.SpawnSettings.minDist, uniGen.SpawnSettings.maxDist / distQuotient), Quaternion.Euler(rotationVector));//Change this so the system decides which child prefab it wants for itself. Want system to know which comes next.
             var gb = tmpObj.GetComponent<GalacticBody>();
             gb.pRadius = Random.Range(pRadius*0.8f, pRadius*0.3f);
             gb.EntityType = gb.EntityType + 1;
+            gb.name = EntityType.ToString();
             children.Add(gb);
             //gb.transform.parent = GameObject.Find("Universe").transform;
             gb.initialVelocity = gb.transform.right + gb.force * gb.mass * Time.deltaTime;
