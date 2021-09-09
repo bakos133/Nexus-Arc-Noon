@@ -162,13 +162,13 @@ public class ShapeGenerator
     public ShapeGenerator(GalacticBody galBod)
     {
         this.galBod = galBod;
-        offset = Random.Range(-1f, 1f);
+        offset = Random.Range(-0.2f, 0.2f);
     }
     float offset = 0;
-    float magnitude = 0.5f;
+    float magnitude = 0.6f;
     public Vector3 CalcPOnPlanet(Vector3 pOnUnitSphere)
     {
-        var c = pOnUnitSphere * (galBod.pRadius / (galBod.pRadius / 2)) + Vector3.one * magnitude * Mathf.PerlinNoise(Mathf.Sin(pOnUnitSphere.x) / offset, Mathf.Cos(pOnUnitSphere.y) / offset);
+        var c = pOnUnitSphere * (galBod.pRadius / (galBod.pRadius / 2)) + Vector3.one * magnitude * Mathf.PerlinNoise(Mathf.Sin(pOnUnitSphere.x) + offset, Mathf.Cos(pOnUnitSphere.y) + offset);
         Debug.Log(c);
         return c;
     }
