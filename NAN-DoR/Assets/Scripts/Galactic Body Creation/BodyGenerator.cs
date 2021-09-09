@@ -127,7 +127,7 @@ public class TerrainFace
             {
                 int i = x + y * resolution;
                 Vector2 percent = new Vector2(x, y) / (resolution - 1);
-                Vector3 pOnUnitCube = localUp + (percent.x - .50001f) * 2 * axisA + (percent.y - .50001f) * 2 * axisB;
+                Vector3 pOnUnitCube = localUp + (percent.x - .50001f) * 2 * axisA  + (percent.y - .50001f) * 2 * axisB;
                 Vector3 pOnUnitSphere = pOnUnitCube.normalized;
 
                 vertices[i] = shapeGenerator.CalcPOnPlanet(pOnUnitSphere);
@@ -162,10 +162,14 @@ public class ShapeGenerator
     public ShapeGenerator(GalacticBody galBod)
     {
         this.galBod = galBod;
+        offset = Random.Range(-1f, 1f);
     }
-
+    float offset = 0;
+    float magnitude = 0.5f;
     public Vector3 CalcPOnPlanet(Vector3 pOnUnitSphere)
     {
-        return pOnUnitSphere * (galBod.pRadius/(galBod.pRadius/2));
+        var c = pOnUnitSphere * (galBod.pRadius / (galBod.pRadius / 2)) + Vector3.one * magnitude * Mathf.PerlinNoise(Mathf.Sin(pOnUnitSphere.x) / offset, Mathf.Cos(pOnUnitSphere.y) / offset);
+        Debug.Log(c);
+        return c;
     }
 }
