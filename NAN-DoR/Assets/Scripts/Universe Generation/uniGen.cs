@@ -42,8 +42,8 @@ public class SpawnSettings
     public int minM = 1;
     public int maxM = 3;
 
-    public float maxDistGK = 2f;
-    public float maxDistSK = 2f;
+    public float maxDistGK = 1f;
+    public float maxDistSK = 3f;
     public float maxDistPK = 3f * 15f;
     public float maxDistMK = 4f * 15f * 15f;
 

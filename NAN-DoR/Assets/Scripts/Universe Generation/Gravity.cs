@@ -13,7 +13,7 @@ public class Gravity
         Vector3 direction = (gBody.transform.position - gRB.transform.position).normalized;
         float distance = direction.magnitude;
 
-        float forceMag = gConstant * (gBody.mass * gRB.mass) / Mathf.Pow(distance, 2);
+        float forceMag = gConstant * (gBody.mass * gRB.mass) / Mathf.Pow(distance,2) * 0.0001f;
         gBody.force = direction.normalized * forceMag / gConstant;
 
         gBody.AddForce();

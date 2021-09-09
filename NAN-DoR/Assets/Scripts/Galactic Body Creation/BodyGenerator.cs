@@ -1,82 +1,171 @@
-using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
-[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class BodyGenerator : MonoBehaviour
 {
 
-	public int xSize, ySize, zSize;
+    [Range(2, 256)]
+    public int resolution  = 20;
 
-	private Mesh mesh;
-	private Vector3[] vertices;
+    [HideInInspector]
+    public bool shapeSF;
+    [HideInInspector]
+    public bool colorSF;
 
-	private void Awake()
-	{
-		StartCoroutine(Generate());
-	}
+    public bool autoUpdate = true;
 
-	private IEnumerator Generate()
-	{
-		GetComponent<MeshFilter>().mesh = mesh = new Mesh();
-		mesh.name = "Procedural Cube";
-		WaitForSeconds wait = new WaitForSeconds(0.05f);
+    GalacticBody shapeSettings;
+    public ColorSettings colorSettings;
 
-		int cornerVertices = 8;
-		int edgeVertices = (xSize + ySize + zSize - 3) * 4;
-		int faceVertices = (
-			(xSize - 1) * (ySize - 1) +
-			(xSize - 1) * (zSize - 1) +
-			(ySize - 1) * (zSize - 1)) * 2;
-		vertices = new Vector3[cornerVertices + edgeVertices + faceVertices];
+    public ShapeGenerator shapeGenerator;
 
-		int v = 0;
-		for (int y = 0; y <= ySize; y++)
-		{
-			for (int x = 0; x <= xSize; x++)
-			{
-				vertices[v++] = new Vector3(x, y, 0);
-				yield return wait;
-			}
-			for (int z = 1; z <= zSize; z++)
-			{
-				vertices[v++] = new Vector3(xSize, y, z);
-				yield return wait;
-			}
-			for (int x = xSize - 1; x >= 0; x--)
-			{
-				vertices[v++] = new Vector3(x, y, zSize);
-				yield return wait;
-			}
-			for (int z = zSize - 1; z > 0; z--)
-			{
-				vertices[v++] = new Vector3(0, y, z);
-				yield return wait;
-			}
-		}
-		for (int z = 1; z < zSize; z++) {
-			for (int x = 1; x < xSize; x++) {
-				vertices[v++] = new Vector3(x, ySize, z);
-				yield return wait;
-			}
-		}
-		for (int z = 1; z < zSize; z++) {
-			for (int x = 1; x < xSize; x++) {
-				vertices[v++] = new Vector3(x, 0, z);
-				yield return wait;
-			}
-		}
-	}
+    [SerializeField, HideInInspector]
+    MeshFilter[] meshFilters;
+    TerrainFace[] terrainFaces;
 
-	private void OnDrawGizmos()
-	{
-		if (vertices == null)
-		{
-			return;
-		}
-		Gizmos.color = Color.black;
-		for (int i = 0; i < vertices.Length; i++)
-		{
-			Gizmos.DrawSphere(vertices[i], 0.1f);
-		}
-	}
+    private void OnValidate()
+    {
+        if(autoUpdate) 
+            GeneratePlanet();
+    }
+    
+    void Initialize()
+    {
+        shapeGenerator = new ShapeGenerator(GetComponent<GalacticBody>());
+        if (meshFilters == null || meshFilters.Length == 0)
+        {
+            meshFilters = new MeshFilter[6];
+        }
+        terrainFaces = new TerrainFace[6];
+
+        Vector3[] directions = { Vector3.up, Vector3.down, Vector3.left, Vector3.right, Vector3.forward, Vector3.back };
+
+        for (int i = 0; i < 6; i++)
+        {
+            if (meshFilters[i] == null)
+            {
+                GameObject meshObj = new GameObject("mesh");
+                meshObj.transform.position = transform.position + meshObj.transform.position;
+                meshObj.transform.parent = transform;
+
+                meshObj.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Standard"));
+                meshFilters[i] = meshObj.AddComponent<MeshFilter>();
+                meshFilters[i].sharedMesh = new Mesh();
+            }
+
+            terrainFaces[i] = new TerrainFace(shapeGenerator, meshFilters[i].sharedMesh, resolution, directions[i]);
+        }
+    }
+    public void GeneratePlanet()
+    {
+        Initialize();
+        GenerateMesh();
+        GenerateColors();
+    }
+
+    public void OnShapeSettingsUpdated()
+    {
+        Initialize();
+        GenerateMesh();
+    }
+    public void OnColorSettingsUpdated()
+    {
+        Initialize();
+        GenerateColors();
+    }
+
+    void GenerateMesh()
+    {
+        foreach (TerrainFace face in terrainFaces)
+        {
+            face.ConstructShape();
+        }
+    }
+
+    void GenerateColors()
+    {
+        foreach (MeshFilter m in meshFilters)
+        {
+            m.GetComponent<MeshRenderer>().sharedMaterial.color = colorSettings.planetColor;
+        }
+    }
+}
+
+public class TerrainFace
+{
+    ShapeGenerator shapeGenerator;
+    int resolution;
+    Mesh mesh;
+
+    Vector3 localUp;
+    Vector3 axisA;
+    Vector3 axisB;
+
+    public bool updShape = false;
+
+    public TerrainFace(ShapeGenerator shapeGenerator, Mesh mesh, int resolution, Vector3 localUp)
+    {
+        this.shapeGenerator = shapeGenerator;
+        this.mesh = mesh;
+        this.resolution = resolution;
+        this.localUp = localUp;
+
+        axisA = new Vector3(localUp.y, localUp.z, localUp.x);
+        axisB = Vector3.Cross(localUp, axisA);
+    }
+
+    public void ConstructShape()
+    {
+        Vector3[] vertices = new Vector3[(resolution * resolution)];
+        int[] triangles = new int[(resolution - 1) * (resolution - 1) * 6];
+        int triIndex = 0;
+
+        for (int y = 0; y < resolution; y++)
+        {
+            for (int x = 0; x < resolution; x++)
+            {
+                int i = x + y * resolution;
+                Vector2 percent = new Vector2(x, y) / (resolution - 1);
+                Vector3 pOnUnitCube = localUp + (percent.x - .50001f) * 2 * axisA + (percent.y - .50001f) * 2 * axisB;
+                Vector3 pOnUnitSphere = pOnUnitCube.normalized;
+
+                vertices[i] = shapeGenerator.CalcPOnPlanet(pOnUnitSphere);
+
+                if(x != resolution-1 && y != resolution - 1)
+                {
+                    triangles[triIndex] = i;
+                    triangles[triIndex+1] = i + resolution + 1;
+                    triangles[triIndex+2] = i + resolution;
+
+                    triangles[triIndex+3] = i;
+                    triangles[triIndex+4] = i + 1;
+                    triangles[triIndex+5] = i + resolution + 1;
+
+                    triIndex += 6;
+                }
+            }
+        }
+
+        mesh.Clear();
+        mesh.vertices = vertices;
+        mesh.triangles = triangles;
+        mesh.RecalculateNormals();
+    }
+}
+
+
+public class ShapeGenerator
+{
+    GalacticBody galBod;
+
+    public ShapeGenerator(GalacticBody galBod)
+    {
+        this.galBod = galBod;
+    }
+
+    public Vector3 CalcPOnPlanet(Vector3 pOnUnitSphere)
+    {
+        return pOnUnitSphere * (galBod.pRadius/(galBod.pRadius/2));
+    }
 }
