@@ -24,14 +24,19 @@ public class BodyGenerator : MonoBehaviour
     MeshFilter[] meshFilters;
     TerrainFace[] terrainFaces;
 
-    private void OnValidate()
+    Color surfaceColor;
+
+    private void Start()
     {
-        if(autoUpdate) 
+        if (autoUpdate)
             GeneratePlanet();
     }
-    
+
+
+
     void Initialize()
     {
+        Debug.Log("init");
         shapeGenerator = new ShapeGenerator(GetComponent<GalacticBody>());
         if (meshFilters == null || meshFilters.Length == 0)
         {
@@ -48,8 +53,12 @@ public class BodyGenerator : MonoBehaviour
                 GameObject meshObj = new GameObject("mesh");
                 meshObj.transform.position = transform.position + meshObj.transform.position;
                 meshObj.transform.parent = transform;
+                meshObj.transform.SetAsFirstSibling();
+                meshObj.transform.localScale = Vector3.one;
 
-                meshObj.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Standard"));
+               
+              meshObj.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Standard"));
+
                 meshFilters[i] = meshObj.AddComponent<MeshFilter>();
                 meshFilters[i].sharedMesh = new Mesh();
             }
@@ -57,8 +66,11 @@ public class BodyGenerator : MonoBehaviour
             terrainFaces[i] = new TerrainFace(shapeGenerator, meshFilters[i].sharedMesh, resolution, directions[i]);
         }
     }
+
+    GalacticBody gb;
     public void GeneratePlanet()
     {
+        gb = gameObject.GetComponent<GalacticBody>();
         Initialize();
         GenerateMesh();
         GenerateColors();
@@ -71,6 +83,11 @@ public class BodyGenerator : MonoBehaviour
     }
     public void OnColorSettingsUpdated()
     {
+
+        if (!Application.isPlaying)
+        {
+            return;
+        }
         Initialize();
         GenerateColors();
     }
@@ -79,15 +96,34 @@ public class BodyGenerator : MonoBehaviour
     {
         foreach (TerrainFace face in terrainFaces)
         {
+
             face.ConstructShape();
         }
     }
 
     void GenerateColors()
     {
+        if (gb.EntityType == EntityType.SolarSystem)
+        {
+
+            surfaceColor = new Color(1f,1f,0);
+        }
+        else
+        {
+            surfaceColor = new Color(Random.Range(0, 1f), Random.Range(0, 1f), Random.Range(0, 1f));
+        }
         foreach (MeshFilter m in meshFilters)
         {
-            m.GetComponent<MeshRenderer>().sharedMaterial.color = colorSettings.planetColor;
+            var mr = m.GetComponent<MeshRenderer>();
+            if (gb.EntityType == EntityType.SolarSystem)
+            {
+
+
+                mr.sharedMaterial.color = surfaceColor;// colorSettings.planetColor;
+                mr.sharedMaterial.EnableKeyword("_EMISSION");
+                mr.sharedMaterial.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
+                mr.sharedMaterial.SetColor("_EmissionColor", surfaceColor);
+            }
         }
     }
 }
@@ -162,14 +198,13 @@ public class ShapeGenerator
     public ShapeGenerator(GalacticBody galBod)
     {
         this.galBod = galBod;
-        offset = Random.Range(-0.2f, 0.2f);
+        offset = Random.Range(-10f, 10f);
     }
     float offset = 0;
-    float magnitude = 0.6f;
+    float magnitude = 0.2f;
     public Vector3 CalcPOnPlanet(Vector3 pOnUnitSphere)
     {
-        var c = pOnUnitSphere * (galBod.pRadius / (galBod.pRadius / 2)) + Vector3.one * magnitude * Mathf.PerlinNoise(Mathf.Sin(pOnUnitSphere.x) + offset, Mathf.Cos(pOnUnitSphere.y) + offset);
-        Debug.Log(c);
+        var c = pOnUnitSphere * (galBod.pRadius / (galBod.pRadius / 2)) + Vector3.one * magnitude * Mathf.PerlinNoise(pOnUnitSphere.x + offset,pOnUnitSphere.y + offset);
         return c;
     }
 }

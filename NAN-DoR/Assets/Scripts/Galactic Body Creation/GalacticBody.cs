@@ -21,8 +21,8 @@ public class GalacticBody : MonoBehaviour
     Rigidbody rb;
     GalacticBody rbGal;
 
-    [SerializeField]
-    EntityType EntityType;
+
+    public EntityType EntityType;
 
     [SerializeField]
     GalacticBody childPrefab = null;
@@ -36,10 +36,15 @@ public class GalacticBody : MonoBehaviour
         transform.localScale = myScale(transform.localScale);
         mass = myMass(mass);
         velocity = initialVelocity;
+        gameObject.AddComponent<BodyGenerator>().GeneratePlanet();
+        name = EntityType.ToString();
+
+
+
     }
     public void SpawnChildren()
     {
-        childPrefab = this;
+       // childPrefab = this;
         var n = 0;
         var distQuotient = 1f;
         switch (EntityType)
@@ -52,11 +57,11 @@ public class GalacticBody : MonoBehaviour
                 distQuotient = uniGen.SpawnSettings.maxDistGK;
                 break;
             case EntityType.SolarSystem:
-                n = Random.Range(uniGen.SpawnSettings.minS, uniGen.SpawnSettings.minS);
+                n = Random.Range(uniGen.SpawnSettings.minS, uniGen.SpawnSettings.maxS);
                 distQuotient = uniGen.SpawnSettings.maxDistSK;
                 break;
             case EntityType.Planet:
-                n = Random.Range(uniGen.SpawnSettings.minP, uniGen.SpawnSettings.minP);
+                n = Random.Range(uniGen.SpawnSettings.minP, uniGen.SpawnSettings.maxP);
                 distQuotient = uniGen.SpawnSettings.maxDistPK;
                 break;
             case EntityType.Moon:
@@ -66,14 +71,19 @@ public class GalacticBody : MonoBehaviour
         for (int i = 0; i < n; i++)
         {
             var tmpObj = Instantiate(childPrefab, transform.position + GetRandomVector3(uniGen.SpawnSettings.minDist, uniGen.SpawnSettings.maxDist / distQuotient), Quaternion.Euler(rotationVector));//Change this so the system decides which child prefab it wants for itself. Want system to know which comes next.
-            var gb = tmpObj.GetComponent<GalacticBody>();
+            tmpObj.GetComponent<GalacticBody>();
+          //  tmpObj.transform.parent = transform;
+        
             //gb.pRadius = pRadius / Random.Range(2f, 3f);
-            gb.EntityType = gb.EntityType + 1;
-            children.Add(gb);
+            tmpObj.EntityType = tmpObj.EntityType + 1;
+            children.Add(tmpObj);
+            tmpObj.pRadius /= distQuotient;
+
+      
             //gb.initialVelocity = gb.transform.up * gb.mass * Time.deltaTime;
-            if (gb.EntityType != EntityType.Moon)
+            if (tmpObj.EntityType != EntityType.Moon)
             {
-                gb.SpawnChildren();
+                tmpObj.SpawnChildren();
             }
         }
     }
@@ -142,7 +152,7 @@ public class GalacticBody : MonoBehaviour
 
     public Vector3 myScale(Vector3 rad)
     {
-        rad = new Vector3(pRadius, pRadius, pRadius);
+        rad = new Vector3(pRadius, pRadius, pRadius)/2f;
 
         return rad;
     }

@@ -45,8 +45,8 @@ public class SpawnSettings
     public float maxDistGK = 1f;
     public float maxDistSK = 3f;
     public float maxDistPK = 3f * 15f;
-    public float maxDistMK = 4f * 15f * 15f;
+    public float maxDistMK = 4f * 15f;
 
-    public float maxDist = 100000f;
-    public float minDist = 100f;
+    public float maxDist = 500f;
+    public float minDist = 200f;
 }

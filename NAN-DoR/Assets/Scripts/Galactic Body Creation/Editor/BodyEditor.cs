@@ -14,7 +14,7 @@ public class BodyEditor : Editor
         base.OnInspectorGUI();
 
         //DrawSettingsEditor(body.shapeSettings, body.OnShapeSettingsUpdated, ref body.shapeSF);
-        DrawSettingsEditor(body.colorSettings, body.OnColorSettingsUpdated, ref body.colorSF);
+      //  DrawSettingsEditor(body.colorSettings, body.OnColorSettingsUpdated, ref body.colorSF);
     }
 
     void DrawSettingsEditor(Object settings, System.Action onSettingsUpdated, ref bool foldout)
